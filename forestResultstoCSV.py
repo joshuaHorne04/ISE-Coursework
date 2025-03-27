@@ -10,8 +10,6 @@ from sklearn.feature_selection import VarianceThreshold
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.decomposition import PCA
 from scipy.stats import boxcox
-
-# --------- Feature Processing Functions ---------
 def remove_low_importance_features(X, y, keep_ratio=0.75):
     model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
     model.fit(X, y)
@@ -59,7 +57,6 @@ def clean_features(df, variance_threshold=0.01, corr_threshold=0.95):
 
     return df
 
-# --------- Random Forest Runner ---------
 def run_random_forest():
     dataset_folder = 'ISE/lab2/datasets'
     csv_files = glob.glob(os.path.join(dataset_folder, '**', '*.csv'), recursive=True)
@@ -136,7 +133,7 @@ def run_random_forest():
 
     rf_df = pd.DataFrame(rf_results)
     rf_df.to_csv('rf_results.csv', index=False)
-    print("\n✅ Random Forest results saved to 'rf_results.csv'")
+    print("\nRandom Forest results saved to 'rf_results.csv'")
 
-# Run the Random Forest function
+
 run_random_forest()

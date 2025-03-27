@@ -13,11 +13,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.decomposition import PCA
 from scipy.stats import boxcox
 
-# Define dataset folder path
 dataset_folder = "ISE/lab2/datasets"
 csv_files = glob.glob(os.path.join(dataset_folder, "**", "*.csv"), recursive=True)
 
-# Function to remove low-importance features dynamically
 def remove_low_importance_features(X, y, keep_ratio=0.75):
     model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
     model.fit(X, y)
@@ -28,10 +26,9 @@ def remove_low_importance_features(X, y, keep_ratio=0.75):
     
     important_indices = sorted_indices[:keep_count]
     X_filtered = X[:, important_indices]
-    print(f"✅ Retained {keep_count}/{X.shape[1]} top features (RandomForest)")
+    print(f"Retained {keep_count}/{X.shape[1]} top features (RandomForest)")
     return X_filtered
 
-# Function to remove high VIF features using Ridge Regression
 def remove_high_vif_features(X):
     vif_threshold = 7.0
     while True:
@@ -46,7 +43,7 @@ def remove_high_vif_features(X):
         feature_weights = np.abs(ridge.coef_)
         weakest_feature = high_vif_indices[np.argmin(feature_weights[high_vif_indices])]
         X = np.delete(X, weakest_feature, axis=1)
-        print(f"✅ Removed feature {weakest_feature} due to high VIF")
+        print(f"Removed feature {weakest_feature} due to high VIF")
     
     return X
 
@@ -69,32 +66,28 @@ def clean_features(df, variance_threshold=0.01, corr_threshold=0.95):
     
     return df
 
-# Store results
 results = []
 
-# Process datasets
 for file in csv_files:
     dataset_name = os.path.basename(file)
-    print(f"📊 Processing {dataset_name}...")
+    print(f"Processing {dataset_name}...")
     try:
         df = pd.read_csv(file)
     except Exception as e:
-        print(f"⚠ Skipping {dataset_name} due to error: {e}")
+        print(f"Skipping {dataset_name} due to error: {e}")
         continue
     
     target_column = df.columns[-1]
     y = df.iloc[:, -1].values
     df.iloc[:, -1] = pd.to_numeric(df.iloc[:, -1], errors='coerce')
-    
-    # Apply Box-Cox transformation to y to handle outliers
+ 
     y, lam = boxcox(y + 1)
     
     categorical_columns = [col for col in df.columns[:-1] if df[col].dtype == 'object']
     numerical_columns = [col for col in df.columns[:-1] if df[col].dtype != 'object']
     
     df = clean_features(df)
-    
-    # Label Encoding instead of One-Hot Encoding
+
     if categorical_columns:
         for col in categorical_columns:
             le = LabelEncoder()
@@ -143,5 +136,5 @@ for file in csv_files:
     })
 
 results_df = pd.DataFrame(results)
-print("\n📊 Final Model Performance After Further Optimizations:\n")
+print("\n Final Model Performance After Further Optimizations:\n")
 print(results_df.to_string(index=False))
